@@ -9,9 +9,17 @@ const soundMap = {
   a: "tom-3.mp3",
 };
 
+// Preload sounds (faster + more reliable)
+const audioPool = {};
+for (const [key, file] of Object.entries(soundMap)) {
+  const audio = new Audio(`sounds/${file}`);
+  audio.preload = "auto";
+  audioPool[key] = audio;
+}
+
 buttons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const key = btn.innerHTML.toLowerCase();
+  btn.addEventListener("pointerdown", () => {
+    const key = btn.textContent.trim().toLowerCase();
     playSound(key);
     animate(btn);
   });
@@ -19,7 +27,7 @@ buttons.forEach((btn) => {
 
 document.addEventListener("keydown", (e) => {
   const key = e.key.toLowerCase();
-  const btn = [...buttons].find((b) => b.innerHTML.toLowerCase() === key);
+  const btn = [...buttons].find((b) => b.textContent.trim().toLowerCase() === key);
   if (btn) {
     playSound(key);
     animate(btn);
@@ -27,9 +35,15 @@ document.addEventListener("keydown", (e) => {
 });
 
 function playSound(key) {
-  const file = soundMap[key];
-  if (!file) return;
-  new Audio(`sounds/${file}`).play();
+  const audio = audioPool[key];
+  if (!audio) return;
+
+  // allow rapid re-taps
+  audio.currentTime = 0;
+  audio.play().catch(() => {
+    // In case browser blocks autoplay, user interaction will fix it
+    console.log("Audio blocked until user interacts.");
+  });
 }
 
 function animate(btn) {
@@ -40,8 +54,6 @@ function animate(btn) {
 // Countdown to Jan 2 (next occurrence)
 function updateCountdown() {
   const now = new Date();
-
-  // Set target: Jan 2 of the next upcoming Jan 2
   let year = now.getFullYear();
   const target = new Date(year, 0, 2, 0, 0, 0); // Jan=0
 
@@ -54,9 +66,8 @@ function updateCountdown() {
   const mins = Math.floor((s % 3600) / 60);
   const secs = s % 60;
 
-  const el = document.getElementById("countdownValue");
-  el.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+  document.getElementById("countdownValue").textContent =
+    `${days}d ${hours}h ${mins}m ${secs}s`;
 }
-
 updateCountdown();
 setInterval(updateCountdown, 1000);
