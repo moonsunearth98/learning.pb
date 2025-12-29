@@ -9,32 +9,129 @@ const soundMap = {
   a: "tom-3.mp3",
 };
 
-// Preload drum sounds
+// preload sounds
 const audioPool = {};
-for (const [key, file] of Object.entries(soundMap)) {
-  const audio = new Audio(`sounds/${file}`);
-  audio.preload = "auto";
-  audioPool[key] = audio;
+for (const [k, file] of Object.entries(soundMap)) {
+  const a = new Audio(`sounds/${file}`);
+  a.preload = "auto";
+  audioPool[k] = a;
 }
 
-// Secret unlock: SHREYA in order
+function playDrum(key) {
+  const a = audioPool[key];
+  if (!a) return;
+  a.currentTime = 0;
+  a.play().catch(err => console.log("Audio blocked:", err));
+}
+
+function animate(btn) {
+  btn.classList.add("pressed");
+  setTimeout(() => btn.classList.remove("pressed"), 120);
+}
+
+// drum clicks
+buttons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.textContent.trim().toLowerCase();
+    playDrum(key);
+    animate(btn);
+    recordKey(key);
+  });
+});
+
+// keyboard
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  const btn = [...buttons].find(b => b.textContent.trim().toLowerCase() === key);
+  if (btn) {
+    playDrum(key);
+    animate(btn);
+    recordKey(key);
+  }
+});
+
+// secret unlock
 const secret = "shreya";
 let buffer = "";
 
-// Surprise modal elements
 const backdrop = document.getElementById("surpriseBackdrop");
-const closeSurprise = document.getElementById("closeSurprise");
+const closeBtn = document.getElementById("closeSurprise");
 
-// Music toggle
-const musicBtn = document.getElementById("musicBtn");
-// Put any song here (add file into /sounds)
-// Example name: happy-bday.mp3
-const bgMusic = new Audio("sounds/happy-bday.mp3");
-bgMusic.loop = true;
-bgMusic.volume = 0.35;
-let musicOn = false;
+function openSurprise() {
+  backdrop.classList.remove("hidden");
+  burstConfetti(120);
+}
 
-// Confetti container
+function closeSurprise(e) {
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
+  backdrop.classList.add("hidden");
+}
+
+function recordKey(key) {
+  buffer = (buffer + key).slice(-secret.length);
+  if (buffer === secret) {
+    buffer = "";
+    openSurprise();
+  }
+}
+
+// Close works on mobile + desktop
+if (closeBtn) {
+  closeBtn.addEventListener("click", closeSurprise);
+  closeBtn.addEventListener("touchstart", closeSurprise, { passive: false });
+}
+
+if (backdrop) {
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) closeSurprise(e);
+  });
+}
+
+// countdown
+function updateCountdown() {
+  const now = new Date();
+  let year = now.getFullYear();
+  const target = new Date(year, 0, 2, 0, 0, 0);
+  if (now > target) target.setFullYear(year + 1);
+
+  const diff = target - now;
+  const s = Math.max(0, Math.floor(diff / 1000));
+  const days = Math.floor(s / 86400);
+  const hours = Math.floor((s % 86400) / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  const secs = s % 60;
+
+  const el = document.getElementById("countdownValue");
+  if (el) el.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// confetti
+const confettiHost = document.getElementById("confetti");
+function burstConfetti(count = 80) {
+  if (!confettiHost) return;
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+
+    const left = Math.random() * 100;
+    const drift = (Math.random() * 2 - 1) * 160;
+    const duration = 1600 + Math.random() * 1400;
+    const delay = Math.random() * 200;
+    const colors = ["#ff3aa7", "#6b4bff", "#ffd1f3", "#ffe7a8", "#ffffff"];
+
+    piece.style.left = `${left}vw`;
+    piece.style.setProperty("--drift", `${drift}px`);
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = `${duration}ms`;
+    piece.style.animationDelay = `${delay}ms`;
+
+    confettiHost.appendChild(piece);
+    setTimeout(() => piece.remove(), duration + delay + 200);
+  }
+}// Confetti container
 const confettiHost = document.getElementById("confetti");
 
 // Button taps (mobile friendly)
