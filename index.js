@@ -1,51 +1,62 @@
+const buttons = document.querySelectorAll(".drum");
 
-const buttons = document.getElementsByClassName("drum");
-
-for (let i = 0; i < buttons.length; i++) {
-  buttons[i].addEventListener("click", onclick);
-}
-
-function onclick() {
-
-  var buttonInnerHtml=this.innerHTML;
-
-  switch(buttonInnerHtml){
-    case "P":
-      var audio1=new Audio("sounds/tom-1.mp3");
-      audio1.play();
-      break;
-    case "r":
-      var audio2=new Audio("sounds/tom-4.mp3");
-      audio2.play();
-      break;
-    case "a":
-      var audio3=new Audio("sounds/snare.mp3");
-      audio3.play();
-      break;
-    case "c":
-      var audio4=new Audio("sounds/snare.mp3");
-      audio4.play();
-      break;
-    case "h":
-      var audio4=new Audio("sounds/crash.mp3");
-      audio4.play();
-      break;
-    case "i":
-      var audio5=new Audio("sounds/tom-3.mp3");
-      audio5.play();
-      break;
-
-    default:
-      console.log(buttonInnerHtml)
-  };
-    
+const soundMap = {
+  s: "tom-1.mp3",
+  h: "tom-4.mp3",
+  r: "snare.mp3",
+  e: "snare.mp3",
+  y: "crash.mp3",
+  a: "tom-3.mp3",
 };
 
-// function Housekeeper (yearofexperience,name,age){
-//     this.yearofexperience=yearofexperience;
-//     this.name=name;
-//     this.age=age;
-// }
+buttons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const key = btn.innerHTML.toLowerCase();
+    playSound(key);
+    animate(btn);
+  });
+});
 
-// var housekeeper1=new Housekeeper(9,"Friyo",54);
-// var housekeeper2=new Housekeeper(12,"unday",66);
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  const btn = [...buttons].find((b) => b.innerHTML.toLowerCase() === key);
+  if (btn) {
+    playSound(key);
+    animate(btn);
+  }
+});
+
+function playSound(key) {
+  const file = soundMap[key];
+  if (!file) return;
+  new Audio(`sounds/${file}`).play();
+}
+
+function animate(btn) {
+  btn.classList.add("pressed");
+  setTimeout(() => btn.classList.remove("pressed"), 120);
+}
+
+// Countdown to Jan 2 (next occurrence)
+function updateCountdown() {
+  const now = new Date();
+
+  // Set target: Jan 2 of the next upcoming Jan 2
+  let year = now.getFullYear();
+  const target = new Date(year, 0, 2, 0, 0, 0); // Jan=0
+
+  if (now > target) target.setFullYear(year + 1);
+
+  const diff = target - now;
+  const s = Math.max(0, Math.floor(diff / 1000));
+  const days = Math.floor(s / 86400);
+  const hours = Math.floor((s % 86400) / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  const secs = s % 60;
+
+  const el = document.getElementById("countdownValue");
+  el.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
