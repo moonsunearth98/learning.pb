@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-
 <head>
-  <meta charset="utf-8">
-  <title>Drum Kit</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shreya’s Birthday Drum Surprise</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css?family=Arvo:400,700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+  <div class="card">
+    <h1 id="title">Shreya turns <span class="age">25</span> 🎉</h1>
+    <p class="subtitle">Tap the letters in her name to play beats 💛</p>
 
-  <h1 id="title">Let's play and fun to my dreamer drummer</h1>
-  <div class="set">
-    <button class="p drum">S</button>
-    <button class="r drum">H</button>
-    <button class="a drum">R</button>
-    <button class="c drum">E</button>
-    <button class="h drum">Y</button>
-    <button class="i drum">A</button>
+    <div class="countdown">
+      <div class="countdown-title">Countdown to 2 Jan</div>
+      <div id="countdownValue">Loading…</div>
+    </div>
+
+    <div class="set">
+      <button class="drum">S</button>
+      <button class="drum">H</button>
+      <button class="drum">R</button>
+      <button class="drum">E</button>
+      <button class="drum">Y</button>
+      <button class="drum">A</button>
+    </div>
+
+    <footer class="footer">Made with love from far away 💫</footer>
   </div>
 
   <script src="index.js"></script>
-
-
-  <footer>
-  
-  </footer>
 </body>
-
 </html>
